@@ -31,13 +31,16 @@ class CostsMangementController extends Controller{
         return "cost ignored!";
     }
 
-    public function listSpentCostsForCurrentMonth(Request $request){ //lists spent costs in a  group for individuals
-        //TODO show members
-        $groupId = $request->groupId; //TODO test this method
+    private function listSpentCostsForCurrentMonth(int $groupId){ //lists spent costs in a  group for individuals
+        $group = Group::find($groupId); //TODO test it on front
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
-        $thisMonthCosts = Cost::where('user_id',Auth::id())->where('group_id', $groupId)->where('created_at','<',
-            $currentMonthEnding)->where('created_at','>', $currentMonthBeginning)->get;
+        $membersIds = ($group->members()->get("id"))->merge($group->admin()->get("id"));
+        $thisMonthCosts = collect();
+        foreach ($membersIds as $memberId){
+            $thisMonthCosts->merge(Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('created_at','<',
+                $currentMonthEnding)->where('created_at','>', $currentMonthBeginning)->get());
+        }
         return $thisMonthCosts;
     }
 
@@ -64,6 +67,7 @@ class CostsMangementController extends Controller{
             return "access denied";
         $group = Group::find($request->groupId);
         $members = ($group->members()->get())->merge($group->admin()->get());
-        return view('ajaxLoads.GroupDetails', ["group"=>$group, 'members' => $members]);
+        $costs = $this->listSpentCostsForCurrentMonth($request->groupId);
+        return view('ajaxLoads.GroupDetails', ["group"=>$group, 'members' => $members, 'costs' => $costs]);
     }
 }
