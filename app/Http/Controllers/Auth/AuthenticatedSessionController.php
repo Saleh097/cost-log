@@ -51,4 +51,15 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    public function destroyByGet()  //added by user
+    {
+        Auth::guard('web')->logout();
+
+        session()->invalidate();
+
+        session()->regenerateToken();
+
+        return redirect('/');
+    }
 }

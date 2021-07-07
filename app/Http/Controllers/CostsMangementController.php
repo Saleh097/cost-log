@@ -35,7 +35,8 @@ class CostsMangementController extends Controller{
         $group = Group::find($groupId); //TODO test it on front
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
-        $membersIds = ($group->members()->get("id"))->merge($group->admin()->get("id"));
+        $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
+            ($group->members()->get('id'))->merge($group->admin()->get("id"));//when members are null errors
         $thisMonthCosts = collect();
         foreach ($membersIds as $memberId){
             $thisMonthCosts->merge(Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('created_at','<',
@@ -50,20 +51,18 @@ class CostsMangementController extends Controller{
 
     public function calculateGroupsSpentCostsForSpecificMonth(Request $request){//calculates total spent costs of all group users
         $groupId = $request->groupId;
-        $groupUsers = Group::find($groupId)->members();
+        $groupUsers = Group::find($groupId)->get()->members();
         $totalSpends = [];
         foreach ($groupUsers as $user){
             $currentMonthSpends = Cost::where('user_id',$user->id)->where('group_id',$groupId)->where(
                 'is_ignored',0)->sum('cost_amount');
             $totalSpends[$user->name] = $currentMonthSpends; //TODO add unique constraint to name
         }
-        foreach ($totalSpends as $name=>$cost) {
-            echo $name . " has spent " . $cost;
-        }
+        return $totalSpends;
     }
 
     public function showGroupDetails(Request $request){
-        if (Gate::denies('add_cost', $request->groupId)) //check user is joined to group (this gate checks same thing
+        if (Gate::denies('add_cost', $request->groupId)) //check user is joined to group (this gate checks same thing)
             return "access denied";
         $group = Group::find($request->groupId);
         $members = ($group->members()->get())->merge($group->admin()->get());

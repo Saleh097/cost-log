@@ -20,6 +20,7 @@
 <body>
 <header class="container-fluid bg-primary pt-2 pb-2">
     Welcome {{$userName}}
+    <a href="/logout" class="btn btn-danger ml-5"> logout </a>
 </header>
 
 <section class="row h-100">
