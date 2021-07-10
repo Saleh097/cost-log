@@ -8,6 +8,7 @@ use App\Models\UserGroupPivot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use phpDocumentor\Reflection\Types\Collection;
 
 class GroupsController extends Controller
 {
@@ -66,6 +67,12 @@ class GroupsController extends Controller
 
     public function showManageMyGroups(){
         $groups = Auth::user()->groupAdmin()->get();
-        return view('ajaxLoads.myGroups', ['groups' => $groups]);
+        $waitingJoins = collect();
+        foreach ($groups as $group){
+            $joinWaiters = $group->waitingJoiners()->get(['id','name']);
+            foreach ($joinWaiters as $joinWaiter)
+                $waitingJoins->push(collect(['id'=>$joinWaiter->id, 'name'=>$joinWaiter->name, 'group_name'=>$group->group_name]));
+        }
+        return view('ajaxLoads.myGroups', ['groups' => $groups, 'waitingJoins'=>$waitingJoins]);
     }
 }

@@ -14,4 +14,16 @@ Groups created by you <br>
     </tbody>
 </table>
 
-{{--//TODO add waiting to join groups--}}
+<table class="table table-striped col-4">
+    <tbody>
+    @foreach($waitingJoins as $waitingJoin)
+    <tr>
+        <td id="{{$waitingJoin->get('id')}}">
+            {{$waitingJoin->get('name')}} wants to join {{$waitingJoin['group_name']}}
+            <button type="button" class="btn btn-primary" id="acceptButton"> accept </button>
+            <button type="button" class="btn btn-outline-danger" id="declineButton"> decline </button>
+        </td>
+    </tr>
+    @endforeach
+    </tbody>
+</table>
