@@ -27,6 +27,8 @@ Route::get('/dashboard', function () {
 Route::group(['prefix' => 'Groups',  'middleware' => 'auth'], function (){
     Route::post('Create',[GroupsController::class,'createGroup']);
     Route::post('JoinRequest', [GroupsController::class, 'requestJoinGroup']);
+    Route::get('/acceptRequest/{groupId}/{userId}', [GroupsController::class, 'acceptJoinRequest']);
+    Route::get('/declineRequest/{groupId}/{userId}', [GroupsController::class, 'declineJoinRequest']);
 });
 
 Route::group(['prefix' => 'ajax',  'middleware' => 'auth'], function (){

@@ -18,12 +18,29 @@ Groups created by you <br>
     <tbody>
     @foreach($waitingJoins as $waitingJoin)
     <tr>
-        <td id="{{$waitingJoin->get('id')}}">
+        <td id="{{$waitingJoin->get('user_id')}}" name="{{$waitingJoin->get('group_id')}}">
             {{$waitingJoin->get('name')}} wants to join {{$waitingJoin['group_name']}}
-            <button type="button" class="btn btn-primary" id="acceptButton"> accept </button>
-            <button type="button" class="btn btn-outline-danger" id="declineButton"> decline </button>
+            <button type="button" class="btn btn-primary acceptBtn" id="acceptButton"> accept </button>
+            <button type="button" class="btn btn-outline-danger declineBtn" id="declineButton"> decline </button>
         </td>
     </tr>
     @endforeach
     </tbody>
 </table>
+
+<script>
+    $(document).ready(function () {
+        $(".acceptBtn").click(function () {
+            $.get("/Groups/acceptRequest/"+$(this).parent().attr('name')+"/"+ $(this).parent().attr('id'), function(data, status){
+                alert(data);
+            });
+            $("#mys").trigger('click'); //to refresh current part (by ajax req)
+        });
+        $(".declineBtn").click(function () {
+            $.get("/Groups/declineRequest/"+$(this).parent().attr('name')+"/"+ $(this).parent().attr('id'), function(data, status){
+                alert(data);
+            });
+            $("#mys").trigger('click'); //to refresh current part (by ajax req)
+        });
+    });
+</script>

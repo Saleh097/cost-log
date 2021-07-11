@@ -8,7 +8,7 @@ use App\Models\UserGroupPivot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use phpDocumentor\Reflection\Types\Collection;
+use Illuminate\Support\Facades\DB;
 
 class GroupsController extends Controller
 {
@@ -32,18 +32,23 @@ class GroupsController extends Controller
         return "success";
     }
 
-    public function acceptJoinRequest(Request $request){ //TODO maybe add remove member
-        $userId = $request->userId;
-        $groupId = $request->groupId;
-        if(!Gate::allows('accept_join',$groupId, $userId))
+    public function acceptJoinRequest($groupId, $userId){ //TODO maybe add remove member
+        if(!Gate::allows('accept_join', collect(['groupId'=>$groupId , 'userId' => $userId])))
             return "Access denied B**h!";
         $joinRequest = JoinRequest::where('user_id',$userId)->where('group_id', $groupId)->first();
         $newJoin = new UserGroupPivot();
         $newJoin->user_id = $userId;
         $newJoin->group_id = $groupId;
         $newJoin->save();
-        $joinRequest->forceDelete();
+        DB::table('join_requests')->where('user_id', $userId)->where('group_id',$groupId)->delete();
         return "user joined to group successfully";
+    }
+
+    public function declineJoinRequest($groupId, $userId){
+        if(!Gate::allows('accept_join', collect(['groupId'=>$groupId , 'userId' => $userId])))
+            return "Access denied B**h!"; //same priviledges as accept_join nedded
+        DB::table('join_requests')->where('user_id', $userId)->where('group_id',$groupId)->delete();
+        return "users join request declined"; //TODO send notificatioon to user when declined(or accepted)
     }
 
     public function showJoinToGroup ($groupName=null){
@@ -71,7 +76,8 @@ class GroupsController extends Controller
         foreach ($groups as $group){
             $joinWaiters = $group->waitingJoiners()->get(['id','name']);
             foreach ($joinWaiters as $joinWaiter)
-                $waitingJoins->push(collect(['id'=>$joinWaiter->id, 'name'=>$joinWaiter->name, 'group_name'=>$group->group_name]));
+                $waitingJoins->push(collect(['user_id'=>$joinWaiter->id,'group_id' => $joinWaiter->pivot->group_id ,
+                    'name'=>$joinWaiter->name, 'group_name'=>$group->group_name]));
         }
         return view('ajaxLoads.myGroups', ['groups' => $groups, 'waitingJoins'=>$waitingJoins]);
     }
