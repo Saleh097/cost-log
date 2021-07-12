@@ -16,6 +16,8 @@
 
     <link rel="stylesheet" href="{{url('packages/bootstrap.min.css')}}">
     <script src="{{url('packages/jquery-3.6.0.js')}}"></script>
+    <script src="{{url('packages/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{url('packages/popper.min.js')}}"></script>
 </head>
 <body>
 <header class="container-fluid bg-primary pt-2 pb-2">

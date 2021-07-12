@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class GroupsController extends Controller
 {
@@ -18,7 +19,8 @@ class GroupsController extends Controller
         $newGroup->group_name = $groupName;
         $newGroup->admin_id = Auth::id();
         $newGroup->save();
-        return "Group created successfully"; //replace by returning error message to view
+        return Redirect::back();
+//        return "Group created successfully"; //TODO replace by returning error message to view
     }
 
     public function requestJoinGroup(Request $request){
