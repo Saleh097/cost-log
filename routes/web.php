@@ -39,6 +39,7 @@ Route::group(['prefix' => 'ajax',  'middleware' => 'auth'], function (){
     Route::get('/joinedGroups', [GroupsController::class, 'showjoinedGroups']);
     Route::get('/myGroups', [GroupsController::class, 'showManageMyGroups']);
     Route::post('/groupDetails', [CostsMangementController::class, 'showGroupDetails']);
+    Route::post('/addCost', [CostsMangementController::class, "addCost"]);
 });
 
 require __DIR__.'/auth.php';

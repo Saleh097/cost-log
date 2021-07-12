@@ -7,18 +7,20 @@ use App\Models\Group;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class CostsMangementController extends Controller{
     public function addCost(Request $request){ //inserts a new cost to a group
         $groupId = $request->groupId;
-        if(Gate::denies('add_cost', $groupId)) //check if user is joined to group
+        if(Gate::denies('add_cost', $groupId)) //checks if user is joined to group
             return "you cannot add cost to this group";
         $newCost = new Cost();
+        $newCost->description = $request->costDescription;
         $newCost->group_id = $groupId;
         $newCost->user_id = Auth::id();
         $newCost->cost_amount = $request->costAmount;
         $newCost->save();
-        return "cost added sucessfully";
+        return Redirect::back(); //TODO replace by returning message
     }
 
     public function ignoreCost(Request $request){ //alias to delete a cost (show it low opacity and do not include on calculations
@@ -36,7 +38,7 @@ class CostsMangementController extends Controller{
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
         $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
-            ($group->members()->get('id'))->merge($group->admin()->get("id"));//when members are null errors
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//when members are null errors
         $thisMonthCosts = collect();
         foreach ($membersIds as $memberId){
             $thisMonthCosts->merge(Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('created_at','<',
