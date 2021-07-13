@@ -49,7 +49,7 @@ members: <br>
     </div>
 </section>
 
-<form class="form-inline mt-2" action="#" id="costParams">
+<form class="form-inline my-2" action="#" id="costParams">
     show result of: &nbsp;
     <select class="form-control mr-1" name="time">
         <option> current month </option>
@@ -61,9 +61,25 @@ members: <br>
 {{--    TODO multiple select for members (by select2 tool)--}}
     <input type="submit" value="get result" class="btn btn-primary">
 </form>
-
 <table class="table table-striped table-hover">
-
+    <thead>
+    <tr>
+        <th> Buyer </th>
+        <th> Cost Amount </th>
+        <th> Spend Date </th>
+        <th> description </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach($costs as $cost)
+        <tr>
+            <td> {{$cost->name}} </td>
+            <td> {{$cost->cost_amount}} </td>
+            <td> {{$cost->created_at}} </td>
+            <td> {{$cost->description}} </td>
+        </tr>
+    @endforeach
+    </tbody>
 </table>
 
 <script>
@@ -76,4 +92,3 @@ members: <br>
         });
     });
 </script>
-{{--TODO add cost for user him self belongs here--}}

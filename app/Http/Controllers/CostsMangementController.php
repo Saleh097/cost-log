@@ -34,15 +34,21 @@ class CostsMangementController extends Controller{
     }
 
     private function listSpentCostsForCurrentMonth(int $groupId){ //lists spent costs in a  group for individuals
-        $group = Group::find($groupId); //TODO test it on front
+        $group = Group::find($groupId);
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
         $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
-            $group->members()->get(['id'])->merge($group->admin()->get("id"));//when members are null errors
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//ti fix error when members are null
         $thisMonthCosts = collect();
         foreach ($membersIds as $memberId){
-            $thisMonthCosts->merge(Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('created_at','<',
-                $currentMonthEnding)->where('created_at','>', $currentMonthBeginning)->get());
+            $memberId = $memberId->id;
+            $temp = Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('costs.created_at','<',
+                $currentMonthEnding)->where('costs.created_at','>', $currentMonthBeginning)->join('users', 'costs.user_id', '=',
+                'users.id')->get(['name', 'cost_amount', 'costs.created_at', 'description']);
+            foreach ($temp as $t){
+                $thisMonthCosts->push($t);
+            }
+//            $thisMonthCosts->last()->isEmpty() ? $thisMonthCosts->pop() : 0; //remove empty result
         }
         return $thisMonthCosts;
     }
