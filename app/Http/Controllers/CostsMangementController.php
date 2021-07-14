@@ -34,7 +34,7 @@ class CostsMangementController extends Controller{
     }
 
     private function listSpentCostsForCurrentMonth(int $groupId){ //lists spent costs in a  group for individuals
-        $group = Group::find($groupId);
+        $group = Group::find($groupId); //TODO add filtering by user and sum row at bottom
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
         $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
@@ -48,7 +48,6 @@ class CostsMangementController extends Controller{
             foreach ($temp as $t){
                 $thisMonthCosts->push($t);
             }
-//            $thisMonthCosts->last()->isEmpty() ? $thisMonthCosts->pop() : 0; //remove empty result
         }
         return $thisMonthCosts;
     }
