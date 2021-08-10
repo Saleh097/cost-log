@@ -20,9 +20,9 @@
     <script src="{{url('packages/popper.min.js')}}"></script>
 </head>
 <body>
-<header class="container-fluid bg-primary pt-2 pb-2">
+<header class="container-fluid bg-primary pt-2 pb-2 clearfix">
     Welcome {{$userName}}
-    <a href="/logout" class="btn btn-danger ml-5"> logout </a>
+    <a href="/logout" class="btn btn-danger float-right"> logout </a>
 </header>
 
 <section class="row h-100">

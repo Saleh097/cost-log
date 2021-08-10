@@ -20,7 +20,8 @@ Joined Groups <br>
     $(document).ready(function () {
        $(".groupRow").click(function () {
            let groupId = $(this).attr("id");
-           $.post('http://localhost:8000/ajax/groupDetails', {_token:"{{csrf_token()}}" ,groupId: groupId}, function (data) {
+           $.post('http://localhost:8000/ajax/groupDetails', {_token:"{{csrf_token()}}" ,groupId: groupId, time: 'current month'},
+               function (data) {
                $("#main").html(data);
            });
        }); 

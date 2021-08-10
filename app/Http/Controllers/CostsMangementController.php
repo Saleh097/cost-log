@@ -52,7 +52,7 @@ class CostsMangementController extends Controller{
         return $thisMonthCosts;
     }
 
-    public function calculateSpentCostsForSpecificMonth(){
+    public function getGroupsAllTimeCost(Request $req){
 
     }
 
@@ -73,7 +73,12 @@ class CostsMangementController extends Controller{
             return "access denied";
         $group = Group::find($request->groupId);
         $members = ($group->members()->get())->merge($group->admin()->get());
-        $costs = $this->listSpentCostsForCurrentMonth($request->groupId);
+        $timeline = $request->time;
+        $costs = strcmp($timeline,'current month')==0 ? $this->listSpentCostsForCurrentMonth($request->groupId) :
+            (strcmp($timeline,'last month')==0 ? 0 :
+            (strcmp($timeline,'this year')==0 ? 0 :
+            (strcmp($timeline,'all time')==0 ? 0 :
+            $this->listSpentCostsForCurrentMonth($request->groupId)))); //specific month uses different mechanism
         return view('ajaxLoads.GroupDetails', ["group"=>$group, 'members' => $members, 'costs' => $costs]);
     }
 }

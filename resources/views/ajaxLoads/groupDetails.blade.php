@@ -53,7 +53,7 @@ members: <br>
     show result of: &nbsp;
     <select class="form-control mr-1" name="time">
         <option> current month </option>
-        <option> last mont </option>
+        <option> last month </option>
         <option> this year </option>
         <option> all time </option>
     </select>
@@ -84,8 +84,30 @@ members: <br>
 
 <script>
     $(document).ready(function () {
-        $("#costParams").submit(function () {
-            alert("submited");
+        $("#costParams").submit(function (event) {
+            event.preventDefault();
+            let selectedTime = $("[name=time]").val();
+            if(selectedTime == 'specific month') //TODO add this feature
+                return 0;
+            $.post('http://localhost:8000/ajax/groupDetails', {_token:"{{csrf_token()}}" ,groupId: {{$group->id}}, time: selectedTime},
+                function (data) {
+                    $("#main").html(data);
+                });
+            // switch (selectedTime){
+            //     case "current month":
+            //         alert("current month job");
+            //         break;
+            //     case "last month":
+            //         alert("last month job");
+            //         break;
+            //     case "this year":
+            //         alert("this year job");
+            //         break;
+            //     case "all time":
+            //         alert("all time job");
+            //     default:
+            //         alert("not valid option");
+            // }
         });
         $("#addCostBtn").click(function (){
             $("#addCostForm").submit();
