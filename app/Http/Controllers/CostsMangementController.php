@@ -130,7 +130,6 @@ class CostsMangementController extends Controller{
             (strcmp($timeline,'this year')==0 ? $this->listSpentCostsForCurrentYear($request->groupId) :
             (strcmp($timeline,'all time')==0 ? $this->getGroupsAllTimeCost($request->groupId) :
             $this->listSpentCostsForCurrentMonth($request->groupId)))); //specific month uses different mechanism
-//        return $costs;
         return view('ajaxLoads.GroupDetails', ["group"=>$group, 'members' => $members, 'costs' => $costs]);
     }
 }

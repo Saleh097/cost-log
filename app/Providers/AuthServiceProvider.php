@@ -50,5 +50,11 @@ class AuthServiceProvider extends ServiceProvider
             $checkAdmin = Group::find($groupId)->admin_id == $user->id;
             return !$usersGroup->isEmpty() || $checkAdmin;
         });
+
+        Gate::define('manage_group', function (User $user, int $groupId){
+            $requestedGroup = Group::find($groupId);
+            return $requestedGroup->admin_id == $user->id;
+            //checks if the authenticated user admin of requested group id
+        });
     }
 }

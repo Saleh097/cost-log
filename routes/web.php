@@ -32,6 +32,7 @@ Route::group(['prefix' => 'Groups',  'middleware' => 'auth'], function (){
     Route::get('/acceptRequest/{groupId}/{userId}', [GroupsController::class, 'acceptJoinRequest']);
     Route::get('/declineRequest/{groupId}/{userId}', [GroupsController::class, 'declineJoinRequest']);
     Route::post('/createGroup', [GroupsController::class, 'createGroup']);
+    Route::post('/removeMember', [GroupsController::class, 'removeMember']);
 });
 
 Route::group(['prefix' => 'ajax',  'middleware' => 'auth'], function (){
@@ -40,6 +41,7 @@ Route::group(['prefix' => 'ajax',  'middleware' => 'auth'], function (){
     Route::get('/myGroups', [GroupsController::class, 'showManageMyGroups']);
     Route::post('/groupDetails', [CostsMangementController::class, 'showGroupDetails']);
     Route::post('/addCost', [CostsMangementController::class, "addCost"]);
+    Route::post('/manageSpecificGroup', [GroupsController::class, "showSpecificGroupManagement"]);
 
 });
 

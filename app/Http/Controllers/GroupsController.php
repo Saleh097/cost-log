@@ -83,4 +83,20 @@ class GroupsController extends Controller
         }
         return view('ajaxLoads.myGroups', ['groups' => $groups, 'waitingJoins'=>$waitingJoins]);
     }
+
+    public function showSpecificGroupManagement(Request $request){
+        $group = Group::find($request->groupId);
+        if (Gate::denies('manage_group', $group->id))
+            return "access denied";
+        $members = $group->members()->get(['id','name']); //TODO check why id=1 is duplicated
+        return view('ajaxLoads.GroupManagement', ['group' => $group, 'members' => $members]);
+    }
+
+    public function removeMember(Request $request){
+        $group = Group::find($request->groupId);
+        if (Gate::denies('manage_group', $group->id))
+            return "access denied";
+        UserGroupPivot::where("group_id", $group->id)->where("user_id", $request->memberId)->delete();
+        return "user removed successfully";
+    }
 }

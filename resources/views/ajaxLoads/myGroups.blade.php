@@ -7,7 +7,7 @@ Groups created by you <br>
     </thead>
     <tbody>
     @foreach($groups as $group)
-        <tr id="{{$group->id}}">
+        <tr id="{{$group->id}}" class="ownerGroup">
             <td> {{$group->group_name}} </td>
         </tr>
     @endforeach
@@ -76,6 +76,12 @@ Groups created by you <br>
         });
         $("#createBtn").click(function (){
             $("#createGroupForm").submit();
+        });
+        $(".ownerGroup").click(function () {
+            let groupId = $(this).attr('id');
+            $.post('http://localhost:8000/ajax/manageSpecificGroup', {_token:"{{csrf_token()}}" ,groupId: groupId},function (data) {
+                    $("#main").html(data);
+                });
         });
     });
 </script>
