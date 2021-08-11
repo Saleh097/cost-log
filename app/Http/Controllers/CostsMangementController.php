@@ -38,7 +38,7 @@ class CostsMangementController extends Controller{
         $currentMonthBeginning = today()->format('y-m') . '-00';
         $currentMonthEnding = today()->format('y-m') . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
         $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
-            $group->members()->get(['id'])->merge($group->admin()->get("id"));//ti fix error when members are null
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//to fix error when members are null
         $thisMonthCosts = collect();
         foreach ($membersIds as $memberId){
             $memberId = $memberId->id;
@@ -50,6 +50,26 @@ class CostsMangementController extends Controller{
             }
         }
         return $thisMonthCosts;
+    }
+
+    private function listSpentCostsForLastMonth(int $groupId){ //lists spent costs in a  group for individuals
+        $group = Group::find($groupId); //TODO add filtering by user and sum row at bottom
+        $lastMonth = (int) today()->format('m') - 1;
+        $lastMonthBeginning = today()->format('y'). '-' . $lastMonth . '-00';
+        $lastMonthEnding = today()->format('y'). '-' . $lastMonth . '-30'; //TODO replace with a switch-case for 31 or 29 days monthes
+        $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//to fix error when members are null
+        $lastMonthCosts = collect();
+        foreach ($membersIds as $memberId){
+            $memberId = $memberId->id;
+            $temp = Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('costs.created_at','<',
+                $lastMonthEnding)->where('costs.created_at','>', $lastMonthBeginning)->join('users', 'costs.user_id', '=',
+                'users.id')->get(['name', 'cost_amount', 'costs.created_at', 'description']);
+            foreach ($temp as $t){
+                $lastMonthCosts->push($t);
+            }
+        }
+        return $lastMonthCosts;
     }
 
     public function getGroupsAllTimeCost(Request $req){
@@ -75,7 +95,7 @@ class CostsMangementController extends Controller{
         $members = ($group->members()->get())->merge($group->admin()->get());
         $timeline = $request->time;
         $costs = strcmp($timeline,'current month')==0 ? $this->listSpentCostsForCurrentMonth($request->groupId) :
-            (strcmp($timeline,'last month')==0 ? 0 :
+            (strcmp($timeline,'last month')==0 ? $this->listSpentCostsForLastMonth($request->groupId) :
             (strcmp($timeline,'this year')==0 ? 0 :
             (strcmp($timeline,'all time')==0 ? 0 :
             $this->listSpentCostsForCurrentMonth($request->groupId)))); //specific month uses different mechanism
