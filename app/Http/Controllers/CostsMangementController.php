@@ -72,8 +72,39 @@ class CostsMangementController extends Controller{
         return $lastMonthCosts;
     }
 
-    public function getGroupsAllTimeCost(Request $req){
+    private function listSpentCostsForCurrentYear(int $groupId){ //lists spent costs in a  group for individuals
+        $group = Group::find($groupId); //TODO add filtering by user and sum row at bottom
+        $currentYearBeginning = today()->format('y') . '-01-00';
+        $currentYearEnding = today()->format('y') . '-12-30'; //TODO replace with a switch-case for 31 or 29 days monthes
+        $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//to fix error when members are null
+        $thisYearCosts = collect();
+        foreach ($membersIds as $memberId){
+            $memberId = $memberId->id;
+            $temp = Cost::where('user_id',$memberId)->where('group_id', $groupId)->where('costs.created_at','<',
+                $currentYearEnding)->where('costs.created_at','>', $currentYearBeginning)->join('users', 'costs.user_id', '=',
+                'users.id')->get(['name', 'cost_amount', 'costs.created_at', 'description']);
+            foreach ($temp as $t){
+                $thisYearCosts->push($t);
+            }
+        }
+        return $thisYearCosts;
+    }
 
+    private function getGroupsAllTimeCost(int $groupId){
+        $group = Group::find($groupId); //TODO add filtering by user and sum row at bottom
+        $membersIds = $group->members()->get()->isEmpty() ? $group->admin()->get("id") :
+            $group->members()->get(['id'])->merge($group->admin()->get("id"));//to fix error when members are null
+        $allCosts = collect();
+        foreach ($membersIds as $memberId){
+            $memberId = $memberId->id;
+            $temp = Cost::where('user_id',$memberId)->where('group_id', $groupId)->join('users', 'costs.user_id', '=',
+                'users.id')->get(['name', 'cost_amount', 'costs.created_at', 'description']);
+            foreach ($temp as $t){
+                $allCosts->push($t);
+            }
+        }
+        return $allCosts;
     }
 
     public function calculateGroupsSpentCostsForSpecificMonth(Request $request){//calculates total spent costs of all group users
@@ -96,9 +127,10 @@ class CostsMangementController extends Controller{
         $timeline = $request->time;
         $costs = strcmp($timeline,'current month')==0 ? $this->listSpentCostsForCurrentMonth($request->groupId) :
             (strcmp($timeline,'last month')==0 ? $this->listSpentCostsForLastMonth($request->groupId) :
-            (strcmp($timeline,'this year')==0 ? 0 :
-            (strcmp($timeline,'all time')==0 ? 0 :
+            (strcmp($timeline,'this year')==0 ? $this->listSpentCostsForCurrentYear($request->groupId) :
+            (strcmp($timeline,'all time')==0 ? $this->getGroupsAllTimeCost($request->groupId) :
             $this->listSpentCostsForCurrentMonth($request->groupId)))); //specific month uses different mechanism
+//        return $costs;
         return view('ajaxLoads.GroupDetails', ["group"=>$group, 'members' => $members, 'costs' => $costs]);
     }
 }
