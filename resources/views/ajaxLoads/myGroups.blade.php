@@ -81,7 +81,7 @@ Groups created by you <br>
             let groupId = $(this).attr('id');
             $.post('http://localhost:8000/ajax/manageSpecificGroup', {_token:"{{csrf_token()}}" ,groupId: groupId},function (data) {
                     $("#main").html(data);
-                });
+            });
         });
     });
 </script>

@@ -24,7 +24,10 @@ members: <br>
             $.post('http://localhost:8000/Groups/removeMember', {_token:"{{csrf_token()}}" ,memberId: memberId, groupId: {{$group->id}}},
                 function (data) {
                     alert(data);
-                    // TODO refresh section
+                    $.post('http://localhost:8000/ajax/manageSpecificGroup', {_token:"{{csrf_token()}}" ,groupId: {{$group->id}}},
+                        function (data) {
+                        $("#main").html(data);
+                    });
             });
         });
     });
